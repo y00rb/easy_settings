@@ -47,7 +47,15 @@ class EasySettings < Hashie::Mash
 
     def _load_file(file)
       content = File.read(file)
-      content.empty? ? nil : YAML.load(ERB.new(content).result).to_hash
+      content.empty? ? nil : _load_yaml(ERB.new(content).result).to_hash
+    end
+
+    def _load_yaml(src)
+      if Psych::VERSION > "4.0"
+        YAML.safe_load(src, permitted_classes: [Symbol], aliases: true)
+      else
+        YAML.load(src)
+      end
     end
 
     def _source_from_file
